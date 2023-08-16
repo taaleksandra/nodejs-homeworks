@@ -12,27 +12,42 @@ const responseSchema = Joi.object({
 });
 
 router.get("/", async (req, res, next) => {
-  const data = await contacts.listContacts();
-  res.json({ status: "success", code: 200, data: data });
+  try {
+    const data = await contacts.listContacts();
+    res.json({ status: "success", code: 200, data: data });
+  } catch (err) {
+    res.json({ status: "error", code: 404, data: err.message });
+  }
 });
 
 router.get("/:contactId", async (req, res, next) => {
-  const data = await contacts.getContactById(req.params.contactId);
+  try {
+    const data = await contacts.getContactById(req.params.contactId);
 
-  if (!data) {
-    return res.json({ status: "error", code: 404, message: "Not found" });
+    if (!data) {
+      res.json({
+        status: "error",
+        code: 404,
+        message: "no contact for id",
+      });
+    }
+
+    res.json({
+      status: "success",
+      code: 200,
+      data: data,
+    });
+  } catch (err) {
+    res.json({ status: "error", code: 404, data: err.message });
   }
-
-  res.json({
-    status: "success",
-    code: 200,
-    data: data,
-  });
 });
 
 router.post("/", async (req, res, next) => {
   try {
     const value = await responseSchema.validateAsync(req.body);
+    if (value.error) {
+      res.send(400).json({ error: error.message });
+    }
 
     const data = await contacts.addContact({
       id: uniqid(),
@@ -41,26 +56,23 @@ router.post("/", async (req, res, next) => {
 
     res.json({ status: "success", code: 201, data: data });
   } catch (err) {
-    console.error(err.message);
+    res.json({ status: "error", code: 500, data: err.message });
   }
 });
 
 router.delete("/:contactId", async (req, res, next) => {
-  const data = await contacts.removeContact(req.params.contactId);
+  try {
+    const data = await contacts.removeContact(req.params.contactId);
 
-  if (!data)
-    return res.json({
-      status: "error",
-      code: 404,
-      message: "Not found",
+    res.json({
+      status: "succes",
+      code: 200,
+      message: "contact deleted successfully",
+      data: data,
     });
-
-  res.json({
-    status: "succes",
-    code: 200,
-    message: "contact deleted successfully",
-    data: data,
-  });
+  } catch (err) {
+    res.json({ status: "error", code: 500, data: err.message });
+  }
 });
 
 router.put("/:contactId", async (req, res, next) => {
@@ -72,8 +84,11 @@ router.put("/:contactId", async (req, res, next) => {
     });
 
   try {
-    await schema.validateAsync(req.body);
-
+    await responseSchema.validateAsync(req.body);
+    const { error } = responseSchema.validate(req.body);
+    if (error) {
+      res.send(400).json({ error: error.message });
+    }
     const existingContact = await contacts.getContactById(req.params.contactId);
 
     if (!existingContact)
@@ -97,7 +112,7 @@ router.put("/:contactId", async (req, res, next) => {
   } catch (error) {
     return res.json({
       status: "error",
-      code: 400,
+      code: 500,
       message: error.message,
     });
   }
