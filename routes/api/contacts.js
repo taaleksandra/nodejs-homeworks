@@ -44,7 +44,7 @@ router.get("/:contactId", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const value = await responseSchema.validateAsync(req.body);
+    const value = await responseSchema.validate(req.body);
     if (value.error) {
       res.send(400).json({ error: error.message });
     }
@@ -84,7 +84,6 @@ router.put("/:contactId", async (req, res, next) => {
     });
 
   try {
-    await responseSchema.validateAsync(req.body);
     const { error } = responseSchema.validate(req.body);
     if (error) {
       res.send(400).json({ error: error.message });
