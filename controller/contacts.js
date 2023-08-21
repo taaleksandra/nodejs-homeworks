@@ -1,4 +1,12 @@
 const service = require("../service/contacts");
+const Joi = require("joi");
+
+const responseSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().required(),
+  favorite: Joi.boolean(),
+});
 
 const get = async (req, res, next) => {
   try {
@@ -43,6 +51,10 @@ const getById = async (req, res, next) => {
 const create = async (req, res, next) => {
   const body = req.body;
   try {
+    const value = await responseSchema.validate(req.body);
+    if (value.error) {
+      res.send(400).json({ error: error.message });
+    }
     const result = await service.addContact(body);
     res.json({
       status: "success",
@@ -57,6 +69,10 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
+    const value = await responseSchema.validate(req.body);
+    if (value.error) {
+      res.send(400).json({ error: error.message });
+    }
     const { contactId } = req.params;
     const { body } = req;
     const results = await service.updateContact(contactId, body);
