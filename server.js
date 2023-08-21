@@ -1,9 +1,3 @@
-// const app = require('./app')
-
-// app.listen(3000, () => {
-//   console.log("Server running. Use our API on port: 3000")
-// })
-
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -12,9 +6,7 @@ require("dotenv").config();
 
 const app = express();
 
-// parse application/json
 app.use(express.json());
-// cors
 app.use(cors());
 
 const routerApi = require("./routes/api/contacts");
