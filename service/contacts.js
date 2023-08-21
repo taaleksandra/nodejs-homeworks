@@ -5,10 +5,10 @@ const getContacts = async () => {
 };
 
 const getContactById = async (id) => {
-  return Contact.findById(id);
+  return Contact.findOne({ _id: id });
 };
 
-const addContact = (data) => {
+const addContact = async (data) => {
   return Contact.create(data);
 };
 
@@ -19,13 +19,7 @@ const updateContact = async (id, data) => {
 };
 
 const updateFavorite = async (id, favorite) => {
-  return Contact.findByIdAndUpdate(
-    id,
-    { favorite },
-    {
-      new: true,
-    }
-  );
+  return Contact.findByIdAndUpdate({ _id: id }, favorite, { new: true });
 };
 
 const removeContact = async (id) => {
