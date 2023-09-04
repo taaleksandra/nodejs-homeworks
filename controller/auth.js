@@ -77,9 +77,8 @@ const signup = async (req, res, next) => {
 };
 
 const logout = async (req, res, next) => {
-  const { _id } = req.user;
+  const user = req.user;
   try {
-    const user = await User.findOne({ _id });
     if (!user) {
       return res.status(401).json({
         status: "error",
@@ -104,9 +103,8 @@ const logout = async (req, res, next) => {
 };
 
 const currentUser = async (req, res, next) => {
-  const { _id } = req.user;
+  const user = req.user;
   try {
-    const user = await User.findOne({ _id });
     if (!user) {
       return res.status(401).json({
         status: "error",
@@ -122,6 +120,7 @@ const currentUser = async (req, res, next) => {
       ResponseBody: {
         email: user.email,
         subscription: user.subscription,
+        token: user.token,
       },
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 const passport = require("passport");
 
-module.exports = (req, res, next) => {
-  passport.authenticate("jwt", { session: false }, (err, user) => {
+module.exports = async (req, res, next) => {
+  passport.authenticate("jwt", { session: false }, async (err, user) => {
     if (!user || err) {
       return res.status(401).json({
         status: "error",
@@ -10,7 +10,21 @@ module.exports = (req, res, next) => {
         data: "Unauthorized",
       });
     }
-    req.user = user;
-    next();
+
+    try {
+      if (user.token === null) {
+        return res.status(401).json({
+          status: "error",
+          code: 401,
+          ResponseBody: {
+            message: "Unauthorized: Invalid token",
+          },
+        });
+      }
+      req.user = user;
+      next();
+    } catch (error) {
+      next(error);
+    }
   })(req, res, next);
 };
